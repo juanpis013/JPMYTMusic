@@ -1,0 +1,17 @@
+{
+  "name": "ytmusic",
+  "version": "1.0.0",
+  "description": "JPM YouTube Music",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "Juan Medina",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "youtube-search-api": "^1.0.7"
+  }
+}

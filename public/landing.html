@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JPM YTMusic</title>
+    <link rel="icon" type="image/png" href="/favicon.ico"/>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+    <style>
+        .SearchContainer {
+            position: fixed;
+            top: 10px;
+            display: block;
+            height: 85%;
+            width: 100%;
+            overflow-y: scroll;
+        }
+        .SearchItemContainer {
+            display: block;
+            max-height: 5%;
+            width: 95%;
+        }
+        .SearchItemBox {
+            display: flex;
+            max-height: 205px;
+            width: 100%;
+            margin: 5px;
+        }
+        .playHover {
+            display: flex;
+            opacity: 0;
+            background: rgba(63, 63, 63, 0.8);
+            text-decoration: none !important;
+            color: #fff;
+            text-align: center;
+            align-items: center;
+            position: absolute;
+            left: 0;
+            width: 100%;
+            max-height: 205px;
+            height: 100%;
+            justify-content: center;
+        }
+        .playHover:hover{
+            opacity: 0.8;
+        }
+        .SearchItemMediaInfoBox {
+            display: flex;
+            width: 100%;
+        }
+        .SearchItemMediaThumbnailBox {
+            display: flex;
+            width: 362px;
+            align-items: center;
+            justify-items: center;
+        }
+        .SearchItemMediaThumbnail{
+            width: 360px;
+        }
+        .SearchItemMediaBox {
+            display: flex;
+            width: 100%;  
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+        }
+        @media only screen and (max-width: 600px) {
+            .SearchItemMediaThumbnail{
+                width: 150px;
+            }
+            .playHover {
+                display: flex;
+                opacity: 0;
+                background: rgba(63, 63, 63, 0.8);
+                text-decoration: none !important;
+                color: #fff;
+                text-align: center;
+                align-items: center;
+                position: absolute;
+                left: 0;
+                width: 100%;
+                max-height: 89px;
+                height: 100%;
+                justify-content: center;
+            }
+            .SearchContainer {
+                position: fixed;
+                top: 10px;
+                display: block;
+                height: 80%;
+                width: 100%;
+                overflow-y: scroll;
+            }
+        }
+    </style>
+</head>
+
+<body style="background-color: black;" class="text-white">
+    <div id="getInfoCol" style="display: block;">
+        <div class="container h-100">
+            <div class="row d-flex h-100 justify-content-center align-items-center">
+                <div style="display: block;" class="col-md-12 text-center">
+                    <h1 class="display-4">JPM YTMusic</h1>
+                    <div class="form-group">
+                        <label class="text-muted lead">Search for YouTube Playlists only</label>
+                    </div>
+                    <div style="display: flex;">
+                        <input type="text" id="searchTxt" class="form-control">
+                        <button class="btn btn-primary" type="button" id="getInfoBtn" style="width: 150px;">Search</button>
+                    </div>
+                    <label class="text-muted lead">Created by Juan P. Medina</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="playlistCol" style="display: none;" class="searchContainer">
+        <div id="searchContainer">
+        </div>
+    </div>
+    <script>
+        if (location.protocol !== 'https:') {
+            location.replace('https:' + location.href.substring(location.protocol.length));
+        }
+        const serverAddress = "jpmytmusic.herokuapp.com" //"localhost:4001" //
+        const ytAudioServer = "https://jpmytaudio.herokuapp.com/?url=playlist%3Flist=";
+        let isSingle = false;
+        let isSearchLoaded = false;
+        let inputSearch = undefined
+        let playlistResponse = undefined
+        let currentItemIndex = 0;
+        let currentItemInfo = undefined
+
+
+        let toggleViews = () => {
+            if (!isSearchLoaded){
+                document.querySelector("#getInfoCol").style.display = "block"
+                document.querySelector("#playlistCol").style.display = "block"
+                isSearchLoaded = true
+            }
+            toggleInfoBtnSpinner()
+        }
+
+        let clearSearch = () => {
+            playlistResponse = undefined
+            document.querySelector("#searchContainer").innerHTML = ""
+        }
+
+        document.querySelector('#searchTxt').addEventListener('keyup',(event) => {
+            if(event.keyCode === 13){
+                document.querySelector("#getInfoBtn").click()                
+            }
+        });
+        document.querySelector('#searchTxt').addEventListener('keydown',(event) => {
+            if(event.keyCode === 13){
+                document.querySelector("#getInfoBtn").click()                
+            }
+        });
+
+        document.querySelector("#getInfoBtn").addEventListener('click',() => {
+            toggleInfoBtnSpinner()
+            inputSearch = document.querySelector("#searchTxt").value
+            clearSearch()
+            getPlaylistInfo()
+        });
+
+        let toggleInfoBtnSpinner = () => {
+            const btn = document.querySelector("#getInfoBtn")
+            const spinner = btn.querySelector("#infoSpinner")
+
+            if (spinner == null) {
+                btn.innerHTML = `<span id="infoSpinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>Search`
+            } else {
+                spinner.remove()
+                btn.innerHTML = `Search`
+            }
+            btn.disabled = !btn.disabled
+        }
+
+        let newSearchlistItem = (item) => {
+            let itemHtml = `<div class="SearchItemBox">
+                                <div class="playHover"><b>Play all ${item.videoCount} videos</b></div>
+                                <div class="SearchItemMediaInfoBox">
+                                    <div class="SearchItemMediaThumbnailBox">
+                                        <img id="${item.id}_videoThumbnail" class="SearchItemMediaThumbnail" src="${item.thumbnail[0].thumbnails[item.thumbnail[0].thumbnails.length - 1].url}" alt="">
+                                    </div>
+                                    <div class="SearchItemMediaBox">
+                                        <div style="display:block;">
+                                            <label id="${item.id}_videoTitle">${item.title}</label>
+                                            <div><small class="text-muted" id="${item.id}_videoCount">${item.videoCount} Videos</small></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>`
+
+            let itemDiv = document.createElement("div");
+            itemDiv.id = item.id
+            itemDiv.className = "SearchItemContainer"
+            itemDiv.innerHTML = itemHtml
+            itemDiv.addEventListener("click",()=>{
+                window.open(ytAudioServer + item.id, '_blank');
+            });
+            return itemDiv
+        }
+
+
+        function populatePlaylist() {
+            if (playlistResponse !== undefined){
+                toggleViews()
+                let listContainer = document.getElementById('searchContainer')
+                for (let i = 0; i < playlistResponse.items.length; i++){
+                    let newItemDOM = newSearchlistItem(playlistResponse.items[i])
+                    listContainer.appendChild(newItemDOM)
+                }
+            }
+            else {
+                console.log("ERROR: Playlist is not defined")
+            }
+        }
+
+        let getPlaylistInfo = () => {
+            try {
+                if (inputSearch.length <= 0) {
+                    alert("Please enter a valid url")
+                    return;
+                }
+                fetch(`https://${serverAddress}/search/${inputSearch}&sp=EgIQAw%253D%253D`)
+                        .then(x => x.json()
+                        .then(y => {
+                            playlistResponse = y
+                            populatePlaylist()
+                        }))
+            } catch (error) {
+                console.log(`error ==>`, error);
+                alert(`Failed to get video info`)
+            }
+        }
+    </script>
+</body>
+
+</html>
