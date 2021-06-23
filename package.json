@@ -12,6 +12,8 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
-    "youtube-search-api": "^1.0.7"
+    "youtube-search-api": "^1.0.7",
+    "ytdl-core": "^4.8.2",
+    "ytpl": "^2.0.5"
   }
 }
