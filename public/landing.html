@@ -120,11 +120,14 @@
         </div>
     </div>
     <script>
-        if (location.protocol !== 'https:') {
-            location.replace('https:' + location.href.substring(location.protocol.length));
+        if (location.hostname.toLowerCase() !== "localhost"){
+            if (location.protocol !== 'https:') {
+                location.replace('https:' + location.href.substring(location.protocol.length));
+            }
         }
-        const serverAddress = "jpmytmusic.herokuapp.com" //"localhost:4001" //
-        const ytAudioServer = "https://jpmytaudio.herokuapp.com/?url=playlist%3Flist=";
+        const serverAddress = location.host //"localhost:4001" //"jpmytmusic.herokuapp.com"
+        const ytAudioServer = "/player?url=playlist%3Flist="//"https://jpmytaudio.herokuapp.com/?url=playlist%3Flist=";
+        const prot = location.protocol //"http"
         let isSingle = false;
         let isSearchLoaded = false;
         let inputSearch = undefined
@@ -225,7 +228,7 @@
                     alert("Please enter a valid url")
                     return;
                 }
-                fetch(`https://${serverAddress}/search/${inputSearch}&sp=EgIQAw%253D%253D`)
+                fetch(`${prot}//${serverAddress}/search/${inputSearch}&sp=EgIQAw%253D%253D`)
                         .then(x => x.json()
                         .then(y => {
                             playlistResponse = y
