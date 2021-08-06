@@ -1,6 +1,6 @@
 {
   "name": "ytmusic",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "JPM YouTube Music",
   "main": "index.js",
   "scripts": {
@@ -12,8 +12,16 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
-    "youtube-search-api": "^1.0.7",
-    "ytdl-core": "^4.8.2",
-    "ytpl": "^2.0.5"
-  }
+    "youtube-search-api": "^1.0.10",
+    "ytdl-core": "^4.9.1",
+    "ytpl": "^2.2.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/juanpis013/JPMYTMusic.git"
+  },
+  "bugs": {
+    "url": "https://github.com/juanpis013/JPMYTMusic/issues"
+  },
+  "homepage": "https://github.com/juanpis013/JPMYTMusic#readme"
 }
